@@ -1,0 +1,93 @@
+version: "3"
+
+services:
+
+    sender:
+        container_name: sender-10.9.0.2
+        build: 
+                context: sender/
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            net-10.9.0.0:
+                ipv4_address: 10.9.0.2
+        volumes:
+                - ./volumes:/volumes
+        command: "python3 sender.py"
+        
+        depends_on:
+                - proxy_a
+        
+                
+    proxy_a:
+        build: 
+                context: proxy1/
+        container_name: proxyA-10.9.0.3
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            net-10.9.0.0:
+                ipv4_address: 10.9.0.3
+        volumes:
+                - ./volumes:/volumes
+        command: "python3 proxy1.py"
+        depends_on:
+                - proxy_b
+                 
+
+
+#     network_diode:
+#         build: 
+#                 context: network_diode/
+#         container_name: networkDiode-10.9.0.4
+#         tty: true
+#         cap_add:
+#                 - ALL
+#         networks:
+#             net-10.9.0.0:
+#                 ipv4_address: 10.9.0.4
+#         volumes:
+#                 - ./volumes:/volumes
+#         command: "python3 network_diode.py"
+#         depends_on:
+#                 - proxy_b
+
+    proxy_b:
+        build: 
+                context: proxy2/
+        container_name: proxyB-10.9.0.5
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            net-10.9.0.0:
+                ipv4_address: 10.9.0.5
+        volumes:
+                - ./volumes:/volumes
+        command: "python3 proxy2.py"
+        depends_on:
+                - user
+        
+                 
+    user:
+        build: 
+                context: user/
+        container_name: endUser-10.9.0.6
+        tty: true
+        cap_add:
+                - ALL
+        networks:
+            net-10.9.0.0:
+                ipv4_address: 10.9.0.6
+        volumes:
+                - ./volumes:/volumes
+        command: "python3 user.py"
+                 
+
+networks:
+    net-10.9.0.0:
+        ipam:
+            config:
+                - subnet: 10.9.0.0/24
